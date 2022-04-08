@@ -30,10 +30,10 @@ model.summary()
 
 # load data
 # create training dataset
-data_dir = "./data_04080133/"
+data_dir = "./data_04081025/"
 train_ds = tf.keras.utils.image_dataset_from_directory(
     data_dir,
-    validation_split=0.2,
+    validation_split=0.1,
     subset="training",
     seed=123,
     image_size=(150, 150),
@@ -42,7 +42,7 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
 # create validation dataset
 val_ds = tf.keras.utils.image_dataset_from_directory(
     data_dir,
-    validation_split=0.2,
+    validation_split=0.1,
     subset="validation",
     seed=123,
     image_size=(150, 150),
@@ -57,7 +57,7 @@ model.compile(
     loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=["accuracy"],
 )
-model.fit(train_ds, validation_data=val_ds, epochs=10)
+model.fit(train_ds, validation_data=val_ds, epochs=100)
 
 # save model
 model.save(f'model_{data_dir.split("_")[-1]}')
