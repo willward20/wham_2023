@@ -25,6 +25,8 @@ if not cap.isOpened():
     exit()
 cap.set(cv.CAP_PROP_FPS, 20)
 i = 0
+en_l.on()
+en_r.on()
 act = 0  # stop
 
 # Main
