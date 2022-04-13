@@ -51,20 +51,21 @@ while True:
     # send driving command and record corresponding image
     if act == 0:
         bot.stop()
-        continue
     elif act == 1:
         bot.forward(0.64)
         cv.imwrite(f"{save_path}/forward/{i}.jpg", im)
+        i += 1
     elif act == 2:
         bot.left_motor.forward(0.32)
         bot.right_motor.forward(0.64)
         cv.imwrite(f"{save_path}/fleft/{i}.jpg", im)
+        i += 1
     elif act == 3:
         bot.left_motor.forward(0.64)
         bot.right_motor.forward(0.32)
         cv.imwrite(f"{save_path}/fright/{i}.jpg", im)
+        i += 1
     # show image, TODO: headless
-    i += 1
     cv.imshow('view', im)
 
 # When everything done, release the capture, disable the robot

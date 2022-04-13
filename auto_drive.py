@@ -6,7 +6,7 @@ from gpiozero import LED, Robot
 
 
 # load model
-model_path = "model_04121906.tflite"
+model_path = "model_04131023.tflite"
 interpreter = tflite.Interpreter(model_path)
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
@@ -48,9 +48,9 @@ while True:
             bot.right_motor.forward(0.64)
             print("forward left")
         elif act == 1:  # forward
-            bot.forward()
+            bot.forward(0.64)
             print("forward")
-        elif act ==2:  # fright
+        elif act == 2:  # fright
             bot.left_motor.forward(0.64)
             bot.right_motor.forward(0.32)
             print("forward right")
