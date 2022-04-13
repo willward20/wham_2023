@@ -4,7 +4,7 @@ from tensorflow.keras import layers, models
 
 model = models.Sequential(
     [
-        tf.keras.Input(shape=(150, 150, 3)),
+        tf.keras.Input(shape=(200, 200, 3)),
         layers.Rescaling(1.0 / 255),
         layers.Conv2D(24, 5, 2, activation="relu"),
         layers.Dropout(0.2),
@@ -30,13 +30,13 @@ model.summary()
 
 # load data
 # create training dataset
-data_dir = "./data_04081025/"
+data_dir = "./data_04121906/"
 train_ds = tf.keras.utils.image_dataset_from_directory(
     data_dir,
     validation_split=0.1,
     subset="training",
-    seed=123,
-    image_size=(150, 150),
+    seed=15,
+    image_size=(200, 200),
     batch_size=32,
 )
 # create validation dataset
@@ -44,8 +44,8 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
     data_dir,
     validation_split=0.1,
     subset="validation",
-    seed=123,
-    image_size=(150, 150),
+    seed=15,
+    image_size=(200, 200),
     batch_size=32,
 )
 # AUTOTUNE = tf.data.AUTOTUNE
