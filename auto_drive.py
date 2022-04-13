@@ -6,7 +6,7 @@ from gpiozero import LED, Robot
 
 
 # load model
-model_path = "model_04131023.tflite"
+model_path = "model_04131122.tflite"
 interpreter = tflite.Interpreter(model_path)
 interpreter.allocate_tensors()
 input_details = interpreter.get_input_details()
