@@ -1,9 +1,9 @@
 # Senior Design 2023
 
 ## Login Information
-- Pi: 
-- Training Computer: wamh/fall2022
-- IP Address: 192.168.0.108/fall22
+- Pi: pi
+- Training Computer: wamh
+- IP Address: 192.168.0.108
 - ROS Domain ID:
 
 ## Requirements
