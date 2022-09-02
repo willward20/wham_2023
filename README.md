@@ -15,6 +15,7 @@
 - [ ] Document the competition Requirements
 
 ## Important Links 
+- [National Robotics Challenge](https://www.thenrc.org/)
 - Senior Design 2022 Report
   - [Trojan Donkey](https://mail.google.com/mail/u/1/#search/zhang/FMfcgzGqQJlfxzFzcpkXsgshXsswKDnJ?projector=1)
   - [RobotNinjas](https://docs.google.com/document/d/1TyaSFLOAew-xImfiMrTmogvYBtwF_ChW31fuu-zrTaM/edit)
