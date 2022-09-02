@@ -16,13 +16,15 @@
 
 ## Important Links 
 - Senior Design 2022 Report
+  - [Trojan Donkey](https://mail.google.com/mail/u/1/#search/zhang/FMfcgzGqQJlfxzFzcpkXsgshXsswKDnJ?projector=1)
+  - [RobotNinjas](https://docs.google.com/document/d/1TyaSFLOAew-xImfiMrTmogvYBtwF_ChW31fuu-zrTaM/edit)
 - https://docs.donkeycar.com/
 
 ## Contributors 
-- Austin Miller @amillertime
-- Colby Hoggard @choggard123
-- Nadira Amadou @nadira30
-- Will Ward @willward20
+- [Austin Miller](https://github.com/amillertime)
+- [Colby Hoggard](https://github.com/choggard123)
+- [Nadira Amadou](https://github.com/nadira30)
+- [Will Ward](https://github.com/willward20)
 
 ## Advisor
-- Dr. Lin Zhang @LinZhang@UCA
+- [Dr. Lin Zhang](https://github.com/linzhangUCA)
