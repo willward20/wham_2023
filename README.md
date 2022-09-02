@@ -3,7 +3,7 @@
 ## Login Information
 - Pi: 
 - Training Computer: wamh/fall2022
-- IP Address: 
+- IP Address: 192.168.0.108/fall22
 - ROS Domain ID:
 
 ## Requirements
