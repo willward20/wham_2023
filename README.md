@@ -3,10 +3,10 @@
 ## Requirements
 
 ## Goals
-- [x] Set up the raspberri pi
-- [x] Part list and Mechanical Design
+- [x] Set up the raspberri pi and software installation
 - [x] Set up Github page
-- [ ] Order Part list 
+- [x] Order part list
+- [x] Mechanical Design
 - [ ] Document the competition Requirements
 
 ## Important Links 
