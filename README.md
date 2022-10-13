@@ -1,8 +1,18 @@
 # Senior Design 2023
+Competiting for the Autonomous Vehicle Challenge held by the National Robotics Challenge in Marion, Ohio.   
+Date: April 13, 14, 15 2023
+
 ## Timelapse
 {% include googleDrivePlayer.html id=page.driveId %}
 
 ## Requirements
+- Build a fully autonomous and self-contained vehicle
+- Vehicule should naviguate 4 waypoints and cross the finish line under 5min 
+- Vehicle size: 24" * 24" * 24"
+- No transmission or communication except GPS
+- No tether to a laptop or a device 
+- The event runs regardless of the weather
+- Everything necessary for the vehicle naviguation, processing, sensing must be attached
 
 ## Goals
 - [x] Set up the raspberri pi and software installation
