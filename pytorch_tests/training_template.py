@@ -1,6 +1,5 @@
 """
-This program is based on PythonEngineer PyTorch tutorials on YouTube
-and Assignment number 4 from Applied Deep Learning
+Template for training data with a NN model.
 """
 import os
 import pandas as pd
@@ -14,8 +13,11 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
 
+"""
+Step 1: Create and configure our dataset
+"""
 
-# Class for creating a custom dataset
+# Class for creating a dataset from our collected data
 class CustomImageDataset(Dataset):
     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
         self.img_labels = pd.read_csv(annotations_file)
@@ -37,67 +39,67 @@ class CustomImageDataset(Dataset):
         #    label = self.target_transform(label)
         return image, steering, throttle
 
-# Create a dataset using donkey car data
-annotations_file = "data.csv"
-img_dir = "images"
+
+# Create a dataset
+annotations_file = "data.csv"  # the name of the csv file
+img_dir = "images"  # the name of the folder with all the images in it
 donkey_data = CustomImageDataset(annotations_file, img_dir)
 
-train_dataloader = DataLoader(donkey_data, batch_size=999, shuffle=False)
-
+# Load the dataset
+batch_size = 64
+train_dataloader = DataLoader(donkey_data, batch_size=batch_size, shuffle=False)
 train_features, steering, throttle = next(iter(train_dataloader))
-print("steering: ", steering.size())
+#train_features, steering, throttle = next(iter(train_dataloader))
+#train_features, steering, throttle = next(iter(train_dataloader))
+#train_features, steering, throttle = next(iter(train_dataloader))
 
-X = train_features # the images; torch.Size([# images, 3, 120, 160]);  type: torch.ByteTensor
-y = steering # torch.Size([# images]);  type: torch.DoubleTensor
-y = y.float() # convert y to type: torch.FloatTensor
-
-# process / reshape the images 
-# Explore your dataset
-M_train = X.shape[0]  # Number of training examples
-image_size = X.shape[1:]  # size of each picture torch.Size([3, 120, 160])
+# Set X and y
+X = train_features
+print(X.size())
+y = torch.stack((steering, throttle), -1) # combines steering and throttle outputs (2 columns, X rows)
+y = y.float()
 
 # Flatten and standardize
-X_flatten = X.reshape(M_train, -1) # new shape: torch.Size([# images, 3*120*160])
+M_train = X.shape[0]
+X_flatten = X.reshape(M_train, -1) # torch.Size([M_train, 3*120*160])
 X = X_flatten / 255.0
 
-n_samples, n_features = X.shape
+# Split data into test and train
+test_size = 0.2 # percentage of data for testing
+X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=test_size, random_state=1234)
 
-# split data into test and train
-X_train, X_test, y_train, y_test  = train_test_split(X, y, test_size=0.2, random_state=1234)
-                                                            # test size = 20%
-
-# scale our features
+# Scale our features
 sc = StandardScaler() # makes features to have zero mean and unit variance
 X_train = sc.fit_transform(X_train)
 X_test = sc.transform(X_test)
 
-# convert data to torch tensors
+# Convert test/train data back to tensors
 X_train = torch.from_numpy(X_train.astype(np.float32))
 X_test = torch.from_numpy(X_test.astype(np.float32))
-#y_train = torch.from_numpy(y_train.astype(np.float32))
-#y_test = torch.from_numpy(y_test.astype(np.float32))
 
+# Set constants
+n_features = X_train.shape[1]
+print("n_features: ", n_features)
+output_size = y_train.shape[1]
+print("output_size: ", output_size)
 
-# reshape y tensors as a columne vecotr (one column)
-y_train = y_train.view(y_train.shape[0], 1) # built in function from pytorch that reshapes tensor with given size
-y_test = y_test.view(y_test.shape[0], 1)
-
-
-
+"""
+Step 2: Building the Neural Network Model
+"""
 
 # Step 1: Set up the model
 # model is linear combination of weights and bias
 # then apply sigmoid function at the end
 class LogisticRegression(nn.Module):
-    def __init__(self, n_input_features):
+    def __init__(self, n_input_features, n_output_features):
         super(LogisticRegression, self).__init__()
-        self.linear = nn.Linear(n_input_features, 1) # 1 value at the end of the model
+        self.linear = nn.Linear(n_input_features, n_output_features) # 2 values at the end of the model
 
     def forward(self, x):
         y_predicted = torch.sigmoid(self.linear(x))
         return y_predicted
 
-model = LogisticRegression(n_features)
+model = LogisticRegression(n_features, output_size)
 
 # Step 2: Loss and Optimizer
 learning_rate = 0.01
