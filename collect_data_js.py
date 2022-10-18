@@ -8,7 +8,8 @@ import RPi.GPIO as GPIO
 import pygame
 import csv
 from datetime import datetime
-
+import time
+from gpiozero import LED
 
 # create data storage
 image_dir = 'data' + datetime.now().strftime("%Y-%m-%d-%H-%M") + '/images/'
@@ -27,6 +28,8 @@ cap = cv.VideoCapture(0) #video capture from 0 or -1 should be the first camera 
 cap.set(cv.CAP_PROP_FPS, 10)
 i = 0  # image index
 action = [0., 0.]
+Record_data = -1
+led = LED(4)
 
 while True:
     ret, frame = cap.read()   
@@ -47,15 +50,27 @@ while True:
     action = [throttle, steer]
     # print(f"action: {action}") # debug
     # save image
-    cv.imwrite(image_dir + str(i)+'.jpg', gray)
-    # save labels
-    label = [str(i)+'.jpg'] + list(action)
-    label_path = os.path.join(os.path.dirname(os.path.dirname(image_dir)), 'labels.csv')
-    with open(label_path, 'a+', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow(label)  # write the data
-
+    if pygame.joystick.Joystick(0).get_button(0) == 1:
+        Record_data = Record_data * -1
+        if Record_data == 1:
+            print("Recording Data")
+            led.on()
+        else:
+            print("Stopping Data Logging")
+            led.off()
+        time.sleep(0.1)
+    
+    if Record_data == 1:
+        cv.imwrite(image_dir + str(i)+'.jpg', gray)
+        # save labels
+        label = [str(i)+'.jpg'] + list(action)
+        label_path = os.path.join(os.path.dirname(os.path.dirname(image_dir)), 'labels.csv')
+        with open(label_path, 'a+', newline='') as f:
+            writer = csv.writer(f)
+            writer.writerow(label)  # write the data
+        i += 1
+        
     if cv.waitKey(1)==ord('q'):
         break
-    i += 1
+    
         
