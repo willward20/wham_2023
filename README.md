@@ -18,7 +18,7 @@ Date: April 13, 14, 15 2023
 - [x] Set up the raspberri pi and software installation
 - [x] Set up Github page
 - [x] Order part list
-- [X] Mechanical Design
+- [ ] Mechanical Design
 - [x] Document the competition Requirements
 - [x] Donkey Car software training and model
 - [ ] Build neural networks for the wham car
