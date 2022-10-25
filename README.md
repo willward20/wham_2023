@@ -18,13 +18,13 @@ Date: April 13, 14, 15 2023
 - [x] Set up the raspberri pi and software installation
 - [x] Set up Github page
 - [x] Order part list
-- [ ] Mechanical Design
+- [X] Mechanical Design
 - [x] Document the competition Requirements
 - [x] Donkey Car software training and model
 - [ ] Build neural networks for the wham car
 - [ ] Compare Performance of Donkey to WHAM! car
-- [ ] Build Video Stabilizer
-- [ ] Determine and build program for controller type (keyboard or ps4)
+- [X] Build Video Stabilizer
+- [X] Determine and build program for controller type (keyboard or ps4)
 
 ## Important Links 
 - [Weekly Reports](https://drive.google.com/drive/u/1/folders/1FO2PocXw_wa_GlBfGjyqvPfI0MiCo4qa) 
