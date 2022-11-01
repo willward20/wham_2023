@@ -126,31 +126,3 @@ print(pred)
 torch.save(model.state_dict(), "model.pth")
 print("Saved PyTorch Model State to model.pth")
 
-"""
-learning_rate = 0.001
-
-model = NeuralNetwork([256, 256])
-loss_fn = nn.MSELoss() # binary cross entropy loss
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) 
-
-epochs = 5
-test_acc = []
-for t in range(epochs):
-    print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, model, loss_fn, optimizer)
-    #acc = test(test_dataloader, model, loss_fn)
-    #test_acc.append(acc)
-print("Done!")
-
-#plt.plot(test_acc)
-"""
-"""
-# Scale our features
-sc = StandardScaler() # makes features to have zero mean and unit variance
-X_train = sc.fit_transform(X_train)
-X_test = sc.transform(X_test)
-
-# Convert test/train data back to tensors
-X_train = torch.from_numpy(X_train.astype(np.float32))
-X_test = torch.from_numpy(X_test.astype(np.float32))
-"""
