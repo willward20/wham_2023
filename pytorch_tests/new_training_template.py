@@ -2,15 +2,16 @@
 Template for training data with a NN model.
 """
 import os
+from math import floor
+
+import numpy as np
 import pandas as pd
-from torchvision.io import read_image
 import torch
 import torch.nn as nn
-import numpy as np
-from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
-from torch.utils.data import random_split
-from math import floor
+from torch.utils.data import DataLoader, Dataset, random_split
+from torchvision.io import read_image
+
+from neural_network_class import NeuralNetwork
 
 
 # Class for creating a dataset from our collected data
@@ -40,40 +41,6 @@ class CustomImageDataset(Dataset):
 annotations_file = "data2022-10-18-16-00/labels.csv"  # the name of the csv file
 img_dir = "data2022-10-18-16-00/images"  # the name of the folder with all the images in it
 collected_data = CustomImageDataset(annotations_file, img_dir)
-
-
-"""
-# Test
-i = 1
-for X, steering, throttle in train_data:
-    #print(f"Shape of X in batch {i} [N, C, H, W]: {X.shape}")
-    #print(f"Shape of steering in batch {i}: {steering.shape}")
-    #print(f"Shape of throttle in batch {i}: {throttle.shape}")
-    i += 1
-print(i)
-"""
-
-
-# Define Neural Network
-class NeuralNetwork(nn.Module):
-
-    def __init__(self, hidden_layer_sizes):
-        super().__init__()
-        self.flatten = nn.Flatten()
-        modules = []
-        modules.append(nn.Linear(60*80, hidden_layer_sizes[0]))
-        modules.append(nn.ReLU())
-        if len(hidden_layer_sizes) > 1:
-            for i in range(1, len(hidden_layer_sizes)):
-                modules.append(nn.Linear(hidden_layer_sizes[i-1], hidden_layer_sizes[i]))
-                modules.append(nn.ReLU())
-        modules.append(nn.Linear(hidden_layer_sizes[-1], 2))
-        self.linear_relu_stack = nn.Sequential(*modules)
-        
-    def forward(self, x):
-        x = self.flatten(x)
-        y_predicted = self.linear_relu_stack(x) 
-        return y_predicted # AKA logits
     
 
 # Define Training Function
@@ -137,7 +104,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr= 0.001)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
 train_dataloader = DataLoader(train_data, batch_size=100)
 test_dataloader = DataLoader(test_data, batch_size=10)
-epochs = 5
+epochs = 1
 
 # Optimize the model
 for t in range(epochs):
@@ -149,6 +116,15 @@ for t in range(epochs):
 print(f"Optimize Done!")
 
 print("test lost: ", test_loss)
+
+
+img = read_image('data2022-10-18-16-00/images/10.jpg')  # read image to tensor
+image = img / 255 
+pred = model(image)
+print(pred)
+
+torch.save(model.state_dict(), "model.pth")
+print("Saved PyTorch Model State to model.pth")
 
 """
 learning_rate = 0.001
