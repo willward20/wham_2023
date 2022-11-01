@@ -7,15 +7,11 @@ from torchvision.io import read_image
 import torch
 import torch.nn as nn
 import numpy as np
-from sklearn import datasets
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
 from torch.utils.data import Dataset
 from torch.utils.data import DataLoader
+from torch.utils.data import random_split
+from math import floor
 
-"""
-Step 1: Create and configure our dataset
-"""
 
 # Class for creating a dataset from our collected data
 class CustomImageDataset(Dataset):
@@ -43,22 +39,20 @@ class CustomImageDataset(Dataset):
 # Create a dataset
 annotations_file = "data2022-10-18-16-00/labels.csv"  # the name of the csv file
 img_dir = "data2022-10-18-16-00/images"  # the name of the folder with all the images in it
-donkey_data = CustomImageDataset(annotations_file, img_dir)
+collected_data = CustomImageDataset(annotations_file, img_dir)
 
-# Load the dataset
-batch_size = 200
-train_dataloader = DataLoader(donkey_data, batch_size=batch_size, shuffle=False)
 
 """
 # Test
 i = 1
-for X, steering, throttle in train_dataloader:
-    print(f"Shape of X in batch {i} [N, C, H, W]: {X.shape}")
-    print(f"Shape of steering in batch {i}: {steering.shape}")
-    print(f"Shape of throttle in batch {i}: {throttle.shape}")
+for X, steering, throttle in train_data:
+    #print(f"Shape of X in batch {i} [N, C, H, W]: {X.shape}")
+    #print(f"Shape of steering in batch {i}: {steering.shape}")
+    #print(f"Shape of throttle in batch {i}: {throttle.shape}")
     i += 1
-    # break
+print(i)
 """
+
 
 # Define Neural Network
 class NeuralNetwork(nn.Module):
@@ -66,13 +60,16 @@ class NeuralNetwork(nn.Module):
     def __init__(self, hidden_layer_sizes):
         super().__init__()
         self.flatten = nn.Flatten()
-        self.linear_relu_stack = nn.Sequential(
-            nn.Linear(60*80, hidden_layer_sizes[0]),
-            nn.ReLU(),
-            nn.Linear(hidden_layer_sizes[0], hidden_layer_sizes[1]),
-            nn.ReLU(),
-            nn.Linear(hidden_layer_sizes[1], 2)
-        )
+        modules = []
+        modules.append(nn.Linear(60*80, hidden_layer_sizes[0]))
+        modules.append(nn.ReLU())
+        if len(hidden_layer_sizes) > 1:
+            for i in range(1, len(hidden_layer_sizes)):
+                modules.append(nn.Linear(hidden_layer_sizes[i-1], hidden_layer_sizes[i]))
+                modules.append(nn.ReLU())
+        modules.append(nn.Linear(hidden_layer_sizes[-1], 2))
+        self.linear_relu_stack = nn.Sequential(*modules)
+        
     def forward(self, x):
         x = self.flatten(x)
         y_predicted = self.linear_relu_stack(x) 
@@ -101,13 +98,12 @@ def train(dataloader, model, loss_fn, optimizer):
             print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
 
         
-
 # Define a test function to evaluate model performance
 def test(dataloader, model, loss_fn):
-    size = len(dataloader.dataset)
+    #size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
-    test_loss, accuracy = 0, 0
+    test_loss = 0
     with torch.no_grad():
         for X, steering, throttle in dataloader:
 
@@ -117,14 +113,44 @@ def test(dataloader, model, loss_fn):
             
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
-            accuracy += (pred.argmax(1) == y).type(torch.float).sum().item()
+            #accuracy += (pred.argmax(1) == y).type(torch.float).sum().item()
     test_loss /= num_batches
-    accuracy /= size
-    print(f"Test Error: \n Accuracy: {(100*accuracy):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    print(f"Test Error: Avg loss: {test_loss:>8f} \n")
 
-    return accuracy
+    return test_loss
+
+
 
 # Start training
+train_data_len = len(collected_data)
+train_data_size = floor(train_data_len*0.9)
+test_data_size = round(train_data_len*0.1) 
+
+test_loss = []
+
+# Initialize the model
+model = NeuralNetwork([500, 500])
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr= 0.001)
+
+# Load the datset (split into train and test)
+train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
+train_dataloader = DataLoader(train_data, batch_size=100)
+test_dataloader = DataLoader(test_data, batch_size=10)
+epochs = 5
+
+# Optimize the model
+for t in range(epochs):
+    print(f"Epoch {t+1}\n-------------------------------")
+    train(train_dataloader, model, loss_fn, optimizer)
+    loss = test(test_dataloader, model, loss_fn)
+    test_loss.append(loss)    
+
+print(f"Optimize Done!")
+
+print("test lost: ", test_loss)
+
+"""
 learning_rate = 0.001
 
 model = NeuralNetwork([256, 256])
@@ -141,12 +167,13 @@ for t in range(epochs):
 print("Done!")
 
 #plt.plot(test_acc)
-
+"""
 """
 # Scale our features
 sc = StandardScaler() # makes features to have zero mean and unit variance
 X_train = sc.fit_transform(X_train)
 X_test = sc.transform(X_test)
+
 # Convert test/train data back to tensors
 X_train = torch.from_numpy(X_train.astype(np.float32))
 X_test = torch.from_numpy(X_test.astype(np.float32))
