@@ -5,12 +5,12 @@ import motor
 from torchvision.io import read_image
 from torchvision.transforms import ToTensor, Resize
 import torch
-from neural_network_class import NeuralNetwork
+from train_and_deploy_autopilot.neural_network_class import NeuralNetwork
 
 
 # Load model
 model = NeuralNetwork([500, 500])
-model.load_state_dict(torch.load("model.pth"))
+model.load_state_dict(torch.load("train_and_deploy_autopilot/model.pth"))
 
 # Setup Transforms
 img2tensor = ToTensor()
@@ -36,8 +36,11 @@ while True:
     steering, throttle = pred[0][0].item(), pred[0][1].item()
     print("steering: ", steering)
     print("throttle: ", throttle)
-    motor.drive(throttle * throttle_lim)
-    servo.turn(steer)
+    th = throttle * 12
+    if th > 50:
+        th = 50
+    motor.drive(th)  
+    servo.turn(steering)
         
     if cv.waitKey(1)==ord('q'):
         motor.stop()
