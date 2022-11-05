@@ -76,7 +76,7 @@ class CustomImageDataset(Dataset):
         return image.float(), steering, throttle
 
 
-def get_loaders():
+def get_loaders(train_batch_size, test_batch_size):
     # Create a dataset
     annotations_file = "data2022-10-18-16-00/labels.csv"  # the name of the csv file
     img_dir = "data2022-10-18-16-00/images"  # the name of the folder with all the images in it
@@ -88,8 +88,8 @@ def get_loaders():
 
     # Load the datset (split into train and test)
     train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
-    train_dataloader = DataLoader(train_data, batch_size=100)
-    test_dataloader = DataLoader(test_data, batch_size=10)
+    train_dataloader = DataLoader(train_data, batch_size=train_batch_size)
+    test_dataloader = DataLoader(test_data, batch_size=test_batch_size)
 
     return train_dataloader, test_dataloader
     
@@ -156,7 +156,9 @@ def objective(trial):
     optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
 
     # Get the dataset.
-    train_dataloader, test_dataloader = get_loaders()
+    train_batch_size = trial.suggest_int("train_bs", 1, 1000)
+    test_batch_size = trial.suggest_int("test_bs", 1, 1000)
+    train_dataloader, test_dataloader = get_loaders(train_batch_size, test_batch_size)
 
     EPOCHS = 10
 
@@ -177,7 +179,7 @@ def objective(trial):
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=100, timeout=600)
+    study.optimize(objective, n_trials=200, timeout=600)
 
     pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
     complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])
