@@ -96,15 +96,15 @@ test_data_size = round(train_data_len*0.1)
 test_loss = []
 
 # Initialize the model
-model = NeuralNetwork([500, 500])
+model = NeuralNetwork([280, 324, 209])
 loss_fn = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr= 0.001)
+optimizer = torch.optim.Adam(model.parameters(), lr= 0.000232)
 
 # Load the datset (split into train and test)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
 train_dataloader = DataLoader(train_data, batch_size=100)
 test_dataloader = DataLoader(test_data, batch_size=10)
-epochs = 1
+epochs = 10
 
 # Optimize the model
 for t in range(epochs):
@@ -123,6 +123,6 @@ image = img / 255
 pred = model(image)
 print(pred)
 
-torch.save(model.state_dict(), "model.pth")
-print("Saved PyTorch Model State to model.pth")
+#torch.save(model.state_dict(), "model.pth")
+#print("Saved PyTorch Model State to model.pth")
 
