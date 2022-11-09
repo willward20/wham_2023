@@ -34,10 +34,12 @@ def backward(speed):
 def drive(speed):
     if speed > 0:
         GPIO.output(DIG1, GPIO.HIGH)
-        p1.start(abs(speed) * 100)
+        speed = abs(speed)
+        p1.start(speed)
     elif speed < 0:
         GPIO.output(DIG1, GPIO.LOW)
-        p1.start(abs(speed) * 100)
+        speed = abs(speed)
+        p1.start(speed)
     else:
         p1.start(0)
 

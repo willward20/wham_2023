@@ -11,10 +11,10 @@ def left(angle):
     kit.servo[0].angle = 90 + angle 
 def reset():
     kit.servo[0].angle = 90 + calibrate
-def turn(angle):
-    turn = 90 + angle * 90 + calibrate
-    if turn > 180:
-        turn = 180
-    elif turn < 0:
-        turn = 0
-    kit.servo[0].angle = turn
+def turn(deg):
+    angle = 90 + deg * 90 + calibrate
+    if angle > 180:
+        angle = 180
+    elif angle < 0:
+        angle = 0
+    kit.servo[0].angle = angle

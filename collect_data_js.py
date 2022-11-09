@@ -2,7 +2,9 @@
 import os
 import cv2 as cv
 #from vidstab.VidStab import VidStab
-import servo1 as servo
+# import servo1 as servo
+# from servo1 import *
+from adafruit_servokit import ServoKit
 import motor
 import RPi.GPIO as GPIO
 import pygame
@@ -11,6 +13,9 @@ from datetime import datetime
 import time
 from gpiozero import LED
 import json
+
+# define servokit
+kit = ServoKit(channels=16)
 
 f = open('config.json')
 data = json.load(f)
@@ -31,7 +36,7 @@ pygame.joystick.init()
 pygame.joystick.Joystick(0).init()
 #stabilizer = VidStab()
 cap = cv.VideoCapture(0) #video capture from 0 or -1 should be the first camera plugged in. If passing 1 it would select the second camera
-#cap.set(cv.CAP_PROP_FPS, 10)
+cap.set(cv.CAP_PROP_FPS, 60)
 i = 0  # image index
 action = [0., 0.]
 Record_data = -1
@@ -44,17 +49,25 @@ while True:
         frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     #stabilized_frame = stabilizer.stabilize_frame(input_frame=gray,smoothing_window=4)
-    if stabilized_frame is None:
-        print('no frame')
-        break
+    # if stabilized_frame is None:
+    #     print('no frame')
+    #     break
 
     #get thorttle and steering values from joysticks.
     pygame.event.pump()
     throttle = round((pygame.joystick.Joystick(0).get_axis(1)),2)
     motor.drive(throttle * throttle_lim)
     steer = (pygame.joystick.Joystick(0).get_axis(3))
-    steer = 90 + steering_trim + steer * 90
-    servo.turn(steer)
+    ang = 90 * (1 + steer) + steering_trim
+    if ang > 180:
+        ang = 180
+    elif ang < 0:
+        ang = 0
+    kit.servo[0].angle = ang
+    # steer = 90 + steering_trim + steer * 90
+    # servo.turn(steer)
+    # turn(steer)
+    print(throttle*throttle_lim, ang)
     
     action = [throttle, steer]
     # print(f"action: {action}") # debug
