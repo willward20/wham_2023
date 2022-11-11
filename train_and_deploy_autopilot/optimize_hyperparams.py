@@ -28,13 +28,13 @@ class NeuralNetwork(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
 
-        n_hidden_layers = trial.suggest_int("n_layers", 1, 3)
+        n_hidden_layers = trial.suggest_int("n_layers", 1, 2)
         modules = []
 
-        in_features = 60*80
+        in_features = 3*640*480
         # use looping structure of python to define hyperparameters to be tuned
         for i in range(n_hidden_layers):
-            out_features = trial.suggest_int("n_units_l{}".format(i), 4, 500)
+            out_features = trial.suggest_int("n_units_l{}".format(i), 10, 500)
             modules.append(nn.Linear(in_features, out_features))
             modules.append(nn.ReLU())
             #p = trial.suggest_float("dropout_l{}".format(i), 0.2, 0.5)
@@ -78,8 +78,8 @@ class CustomImageDataset(Dataset):
 
 def get_loaders(train_batch_size, test_batch_size):
     # Create a dataset
-    annotations_file = "data2022-10-18-16-00/labels.csv"  # the name of the csv file
-    img_dir = "data2022-10-18-16-00/images"  # the name of the folder with all the images in it
+    annotations_file = "data2022-11-08-16-29/labels.csv"  # the name of the csv file
+    img_dir = "data2022-11-08-16-29/images"  # the name of the folder with all the images in it
     collected_data = CustomImageDataset(annotations_file, img_dir)
 
     train_data_len = len(collected_data)
@@ -88,8 +88,10 @@ def get_loaders(train_batch_size, test_batch_size):
 
     # Load the datset (split into train and test)
     train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
+
     train_dataloader = DataLoader(train_data, batch_size=train_batch_size)
     test_dataloader = DataLoader(test_data, batch_size=test_batch_size)
+    
 
     return train_dataloader, test_dataloader
     
@@ -103,7 +105,7 @@ def train(dataloader, model, loss_fn, optimizer):
         y = torch.stack((steering, throttle), -1) 
         #y = y.float()
         
-        #data, target = data.view(data.size(0), -1).to(DEVICE), target.to(DEVICE)
+        X, y = X.to(DEVICE), y.to(DEVICE)
 
         # Compute prediction error
         pred = model(X)  # forward propagation
@@ -132,6 +134,8 @@ def test(dataloader, model, loss_fn):
             y = torch.stack((steering, throttle), -1) 
             y = y.float()
             
+            X, y = X.to(DEVICE), y.to(DEVICE)
+
             #data, target = data.view(data.size(0), -1).to(DEVICE), target.to(DEVICE)
 
             pred = model(X)
@@ -151,8 +155,8 @@ def objective(trial):
     loss_fn = nn.MSELoss()
 
     # Generate the optimizers.
-    optimizer_name = trial.suggest_categorical("optimizer", ["Adam", "RMSprop", "SGD"])
-    lr = trial.suggest_float("lr", 1e-5, 1e-1, log=True)
+    optimizer_name = trial.suggest_categorical("optimizer", ["Adam"])
+    lr = trial.suggest_float("lr", 1e-5, 1e-3, log=True)
     optimizer = getattr(optim, optimizer_name)(model.parameters(), lr=lr)
 
     # Get the dataset.
@@ -179,7 +183,7 @@ def objective(trial):
 
 if __name__ == "__main__":
     study = optuna.create_study(direction="minimize")
-    study.optimize(objective, n_trials=200, timeout=600)
+    study.optimize(objective, n_trials=100, timeout=600)
 
     pruned_trials = study.get_trials(deepcopy=False, states=[TrialState.PRUNED])
     complete_trials = study.get_trials(deepcopy=False, states=[TrialState.COMPLETE])

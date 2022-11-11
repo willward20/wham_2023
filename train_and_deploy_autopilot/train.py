@@ -13,6 +13,8 @@ from torchvision.io import read_image
 
 from neural_network_class import NeuralNetwork
 
+DEVICE = torch.device("cpu")
+
 
 # Class for creating a dataset from our collected data
 class CustomImageDataset(Dataset):
@@ -38,8 +40,8 @@ class CustomImageDataset(Dataset):
 
 
 # Create a dataset
-annotations_file = "data2022-10-18-16-00/labels.csv"  # the name of the csv file
-img_dir = "data2022-10-18-16-00/images"  # the name of the folder with all the images in it
+annotations_file = "data2022-11-08-16-29/labels.csv"  # the name of the csv file
+img_dir = "data2022-11-08-16-29/images"  # the name of the folder with all the images in it
 collected_data = CustomImageDataset(annotations_file, img_dir)
     
 
@@ -52,7 +54,9 @@ def train(dataloader, model, loss_fn, optimizer):
         #Combine steering and throttle into one tensor (2 columns, X rows)
         y = torch.stack((steering, throttle), -1) 
         #y = y.float()
-        
+
+        X, y = X.to(DEVICE), y.to(DEVICE)
+
         # Compute prediction error
         pred = model(X)  # forward propagation
         loss = loss_fn(pred, y)  # compute loss
@@ -78,6 +82,8 @@ def test(dataloader, model, loss_fn):
             y = torch.stack((steering, throttle), -1) 
             y = y.float()
             
+            X, y = X.to(DEVICE), y.to(DEVICE)
+
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
             #accuracy += (pred.argmax(1) == y).type(torch.float).sum().item()
@@ -96,15 +102,15 @@ test_data_size = round(train_data_len*0.1)
 test_loss = []
 
 # Initialize the model
-model = NeuralNetwork([280, 324, 209])
+model = NeuralNetwork([250, 250]).to(DEVICE)
 loss_fn = nn.MSELoss()
 optimizer = torch.optim.Adam(model.parameters(), lr= 0.000232)
 
 # Load the datset (split into train and test)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
-train_dataloader = DataLoader(train_data, batch_size=100)
-test_dataloader = DataLoader(test_data, batch_size=10)
-epochs = 10
+train_dataloader = DataLoader(train_data, batch_size=500)
+test_dataloader = DataLoader(test_data, batch_size=50)
+epochs = 4
 
 # Optimize the model
 for t in range(epochs):
@@ -117,12 +123,13 @@ print(f"Optimize Done!")
 
 print("test lost: ", test_loss)
 
-
+"""
 img = read_image('data2022-10-18-16-00/images/10.jpg')  # read image to tensor
 image = img / 255 
 pred = model(image)
 print(pred)
+"""
 
-#torch.save(model.state_dict(), "model.pth")
-#print("Saved PyTorch Model State to model.pth")
+torch.save(model.state_dict(), "model_11_08.pth")
+print("Saved PyTorch Model State to model_11_08.pth")
 

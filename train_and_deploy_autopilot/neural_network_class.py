@@ -7,7 +7,7 @@ class NeuralNetwork(nn.Module):
         super().__init__()
         self.flatten = nn.Flatten()
         modules = []
-        modules.append(nn.Linear(60*80, hidden_layer_sizes[0]))
+        modules.append(nn.Linear(3*640*480, hidden_layer_sizes[0]))
         modules.append(nn.ReLU())
         if len(hidden_layer_sizes) > 1:
             for i in range(1, len(hidden_layer_sizes)):
