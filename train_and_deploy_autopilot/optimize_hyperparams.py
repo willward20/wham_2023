@@ -21,6 +21,8 @@ from optuna.trial import TrialState
 DEVICE = torch.device("cpu")
 OUTPUT = 2 
 
+LOSSES = []
+
 # Define Neural Network
 class NeuralNetwork(nn.Module):
 
@@ -177,6 +179,8 @@ def objective(trial):
         if trial.should_prune():
             raise optuna.exceptions.TrialPruned()
 
+    LOSSES.append(loss)
+
     return loss
 
 
@@ -201,3 +205,5 @@ if __name__ == "__main__":
     print("  Params: ")
     for key, value in trial.params.items():
         print("    {}: {}".format(key, value))
+
+    print(LOSSES)

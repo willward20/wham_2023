@@ -108,8 +108,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr= 0.000232)
 
 # Load the datset (split into train and test)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
-train_dataloader = DataLoader(train_data, batch_size=500)
-test_dataloader = DataLoader(test_data, batch_size=50)
+train_dataloader = DataLoader(train_data, batch_size=100)
+test_dataloader = DataLoader(test_data, batch_size=10)
 epochs = 4
 
 # Optimize the model
@@ -124,12 +124,12 @@ print(f"Optimize Done!")
 print("test lost: ", test_loss)
 
 """
-img = read_image('data2022-10-18-16-00/images/10.jpg')  # read image to tensor
+img = read_image('data2022-11-08-16-29/images/10.jpg')  # read image to tensor
 image = img / 255 
 pred = model(image)
 print(pred)
 """
 
-torch.save(model.state_dict(), "model_11_08.pth")
-print("Saved PyTorch Model State to model_11_08.pth")
+torch.save(model.state_dict(), "MODEL_NAME.pth")
+print("Saved PyTorch Model State to MODEL_NAME.pth")
 
