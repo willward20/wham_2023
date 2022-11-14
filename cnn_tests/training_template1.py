@@ -113,5 +113,3 @@ for t in range(epochs):
     # test_loop(test_dataloader, model, loss_fn)
 print("Done!")
 torch.save(model.state_dict(), "model.pth")
-torch.save(model.state_dict(), "MODEL_NAME.pth")
-torch.save(model.state_dict(), "MODEL_NAME.pth")
