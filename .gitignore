@@ -1,4 +1,6 @@
 data*/
+cnn_tests/images/
+cnn_tests/labels.csv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

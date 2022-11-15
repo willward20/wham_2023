@@ -8,12 +8,12 @@ from torch.utils.data import DataLoader
 import torch.nn as nn
 import torch.nn.functional as F
 from torchvision.transforms import transforms
-
+DEVICE = torch.device("cuda")
 
 class CustomImageDataset(Dataset):
     def __init__(self, transform=None):
-        self.img_labels = pd.read_csv("../cnn/labels.csv")
-        self.img_dir = "../cnn/images"
+        self.img_labels = pd.read_csv("../cnn_tests/labels.csv")
+        self.img_dir = "../cnn_tests/images"
         self.transform = transform
 
     def __len__(self):
@@ -49,7 +49,7 @@ class NeuralNetwork(nn.Module):
         return x
 
 
-model = NeuralNetwork()
+model = NeuralNetwork().to(DEVICE)
 
 # define parameters
 learning_rate = 1e-100
@@ -69,6 +69,7 @@ def train_loop(dataloader, model, loss_fn, optimizer):
         # combine steering and throttle in one tensor
         y = torch.stack((steering, throttle), -1)
         # Compute prediction and loss
+        X, y = X.to(DEVICE), y.to(DEVICE)
         pred = model(X)
         loss = loss_fn(pred, y)
 
@@ -93,14 +94,17 @@ def test_loop(dataloader, model, loss_fn):
             # combine steering and throttle in one tensor
             y = torch.stack((steering, throttle), -1)
             y = y.float()
+            X, y = X.to(DEVICE), y.to(DEVICE)
             pred = model(X)
             test_loss += loss_fn(pred, y).item()
-            correct += (pred.argmax(1) == y).type(torch.float).sum().item()
+            #correct += (pred.argmax(1) == y).type(torch.float).sum().item()
 
     test_loss /= num_batches
     correct /= size
     print(f"Test Error: \n Accuracy: {(100 * correct):>0.1f}%, Avg loss: {test_loss:>8f} \n")
+    return test_loss
 
+test_loss = []
 
 # initialize loss function and optimizer and pass it to train_loop and test_loop
 loss_fn = nn.MSELoss()
@@ -110,6 +114,8 @@ optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 for t in range(epochs):
     print(f"Epoch {t + 1}\n-------------------------------")
     train_loop(train_dataloader, model, loss_fn, optimizer)
-    # test_loop(test_dataloader, model, loss_fn)
+    test_loss = test_loop(test_dataloader, model, loss_fn)
+print(f"test_loss: {test_loss}")
 print("Done!")
-torch.save(model.state_dict(), "model.pth")
+torch.save(model.state_dict(), "model_cnn.pth")
+print("Model Saved")
