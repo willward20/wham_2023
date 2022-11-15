@@ -55,9 +55,9 @@ while True:
 
     #get thorttle and steering values from joysticks.
     pygame.event.pump()
-    throttle = round((pygame.joystick.Joystick(0).get_axis(1)),2)
-    motor.drive(throttle * throttle_lim)
-    steer = (pygame.joystick.Joystick(0).get_axis(3))
+    throttle = round((pygame.joystick.Joystick(0).get_axis(1)),2) # between -1 (max reverse) and 1 (max forward), rounded to 2 sig figs 
+    motor.drive(throttle * throttle_lim) # multiplies speed within range -100 to 100 (or whatever throttle_lim is)
+    steer = (pygame.joystick.Joystick(0).get_axis(3)) # between -1 (left) and 1 (right)
     ang = 90 * (1 + steer) + steering_trim
     if ang > 180:
         ang = 180
