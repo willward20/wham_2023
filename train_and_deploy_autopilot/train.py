@@ -15,7 +15,6 @@ from neural_network_class import NeuralNetwork
 
 DEVICE = torch.device("cpu")
 
-
 # Class for creating a dataset from our collected data
 class CustomImageDataset(Dataset):
     def __init__(self, annotations_file, img_dir, transform=None, target_transform=None):
@@ -110,7 +109,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr= 0.000232)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
 train_dataloader = DataLoader(train_data, batch_size=100)
 test_dataloader = DataLoader(test_data, batch_size=10)
-epochs = 4
+epochs = 1
 
 # Optimize the model
 for t in range(epochs):
@@ -123,12 +122,12 @@ print(f"Optimize Done!")
 
 print("test lost: ", test_loss)
 
-"""
+
 img = read_image('data2022-11-08-16-29/images/10.jpg')  # read image to tensor
 image = img / 255 
 pred = model(image)
 print(pred)
-"""
+
 
 torch.save(model.state_dict(), "MODEL_NAME.pth")
 print("Saved PyTorch Model State to MODEL_NAME.pth")
