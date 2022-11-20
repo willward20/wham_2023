@@ -43,9 +43,9 @@ led = LED(4)
 while True:
     ret, frame = cap.read()   
     if frame is not None:
-        #cv.imshow('frame', frame)  # debug
-        frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
-        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        # cv.imshow('frame', frame)  # debug
+        #frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
+        #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     #stabilized_frame = stabilizer.stabilize_frame(input_frame=gray,smoothing_window=4)
     # if stabilized_frame is None:
     #     print('no frame')
@@ -53,8 +53,8 @@ while True:
 
     #get thorttle and steering values from joysticks.
     pygame.event.pump()
-    throttle = round((pygame.joystick.Joystick(0).get_axis(1)),2) # between -1 (max reverse) and 1 (max forward), rounded to 2 sig figs 
-    motor.drive(throttle * throttle_lim) # multiplies speed within range -100 to 100 (or whatever throttle_lim is)
+    #throttle = round((pygame.joystick.Joystick(0).get_axis(1)),2) # between -1 (max reverse) and 1 (max forward), rounded to 2 sig figs 
+    motor.drive(1 * throttle_lim) # multiplies speed within range -100 to 100 (or whatever throttle_lim is)
     steer = round((pygame.joystick.Joystick(0).get_axis(3)), 2) # between -1 (left) and 1 (right)
     ang = 90 * (1 + steer) + steering_trim
     if ang > 180:
@@ -67,7 +67,7 @@ while True:
     # turn(steer)
     print(throttle*throttle_lim, ang)
     
-    action = [throttle, steer]
+    action = [steer]
     # print(f"action: {action}") # debug
     # save image
     if pygame.joystick.Joystick(0).get_button(0) == 1:

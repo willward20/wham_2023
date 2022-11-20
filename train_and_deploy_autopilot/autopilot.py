@@ -5,7 +5,7 @@ import motor
 from torchvision.io import read_image
 from torchvision.transforms import ToTensor, Resize
 import torch
-from neural_network_class import NeuralNetwork
+from cnn_network import cnn_network
 from adafruit_servokit import ServoKit
 
 #pca.frequency = 50
@@ -13,8 +13,8 @@ kit = ServoKit(channels=16)
 
 
 # Load model
-model = NeuralNetwork([250, 250])
-model.load_state_dict(torch.load("model_11_08.pth", map_location=torch.device('cpu')))
+model = cnn_network()
+model.load_state_dict(torch.load("model_cnn.pth", map_location=torch.device('cpu')))
 
 # Setup Transforms
 img2tensor = ToTensor()
@@ -38,16 +38,18 @@ while True:
     with torch.no_grad():
         pred = model(img_tensor.unsqueeze(dim=0))
     print(pred)
-    steering, throttle = pred[0][0].item(), pred[0][1].item()
+    steering, throttle = pred[0][0].item() + 0.71, pred[0][1].item()
     print("steering: ", steering)
     print("throttle: ", throttle)
-    motor.drive(throttle * 650) # we remove the negative before throttle so it doesn't drive bkwards
+    motor.drive(throttle * 650 * 2.5) # we remove the negative before throttle so it doesn't drive bkwards
+    print("motor: ", throttle * 650 * 2.5)
     ang = 90 * (1 + steering) + 6.8
     if ang > 180:
         ang = 180
     elif ang < 0:
         ang = 0
     kit.servo[0].angle = ang
+    print("ang: ", ang)
 
     if cv.waitKey(1)==ord('q'):
         motor.stop()
