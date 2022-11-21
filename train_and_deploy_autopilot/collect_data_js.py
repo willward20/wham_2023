@@ -44,7 +44,8 @@ while True:
     ret, frame = cap.read()   
     if frame is not None:
         #cv.imshow('frame', frame)  # debug
-        frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
+        #frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
+        frame = cv.resize(frame, (60, 80))
         gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     #stabilized_frame = stabilizer.stabilize_frame(input_frame=gray,smoothing_window=4)
     # if stabilized_frame is None:
@@ -84,7 +85,7 @@ while True:
         time.sleep(0.1)
     
     if Record_data == 1:
-        cv.imwrite(image_dir + str(i)+'.jpg', frame)
+        cv.imwrite(image_dir + str(i)+'.jpg', gray) # changed frame to gray
         # save labels
         label = [str(i)+'.jpg'] + list(action)
         label_path = os.path.join(os.path.dirname(os.path.dirname(image_dir)), 'labels.csv')
