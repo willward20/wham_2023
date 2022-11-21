@@ -29,6 +29,7 @@ class CustomImageDataset(Dataset):
     def __getitem__(self, idx):
         img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, 0])
         image = read_image(img_path) / 255 
+        #print(image.float().size())
         steering = self.img_labels.iloc[idx, 1].astype(np.float32)
         throttle = self.img_labels.iloc[idx, 2].astype(np.float32)
         if self.transform:
@@ -39,10 +40,11 @@ class CustomImageDataset(Dataset):
 
 
 # Create a dataset
-annotations_file = "data2022-11-08-16-29/labels.csv"  # the name of the csv file
-img_dir = "data2022-11-08-16-29/images"  # the name of the folder with all the images in it
+annotations_file = "STILL_DATA/labels.csv"  # the name of the csv file
+img_dir = "STILL_DATA/images"  # the name of the folder with all the images in it
 collected_data = CustomImageDataset(annotations_file, img_dir)
-    
+
+print(collected_data[0][0])
 
 # Define Training Function
 def train(dataloader, model, loss_fn, optimizer):
@@ -55,6 +57,7 @@ def train(dataloader, model, loss_fn, optimizer):
         #y = y.float()
 
         X, y = X.to(DEVICE), y.to(DEVICE)
+        #print("Size X: ", X.size()) # torch.Size([BATCHSIZE, 3, 480, 640])
 
         # Compute prediction error
         pred = model(X)  # forward propagation
@@ -107,9 +110,9 @@ optimizer = torch.optim.Adam(model.parameters(), lr= 0.000232)
 
 # Load the datset (split into train and test)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
-train_dataloader = DataLoader(train_data, batch_size=100)
-test_dataloader = DataLoader(test_data, batch_size=10)
-epochs = 1
+train_dataloader = DataLoader(train_data, batch_size=27)
+test_dataloader = DataLoader(test_data, batch_size=27)
+epochs = 100
 
 # Optimize the model
 for t in range(epochs):
@@ -123,12 +126,16 @@ print(f"Optimize Done!")
 print("test lost: ", test_loss)
 
 
-img = read_image('data2022-11-08-16-29/images/10.jpg')  # read image to tensor
-image = img / 255 
+# Load an image from the dataset and make a prediction
+image = read_image('STILL_DATA/images/10.jpg')  # read image to tensor
+image = (image.float() / 255 ) # convert to float and standardize between 0 and 1
+print("loaded image after divide and float: ", image.size())
+image = image.unsqueeze(dim=0) # add an extra dimension that is needed in order to make a prediction
+print("loaded image after unsqueeze: ", image.size())
 pred = model(image)
 print(pred)
 
-
-torch.save(model.state_dict(), "MODEL_NAME.pth")
+# Save the model
+torch.save(model.state_dict(), "STILL_MODEL.pth")
 print("Saved PyTorch Model State to MODEL_NAME.pth")
 

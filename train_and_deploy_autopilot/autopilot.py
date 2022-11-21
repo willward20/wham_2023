@@ -7,10 +7,18 @@ from torchvision.transforms import ToTensor, Resize
 import torch
 from cnn_network import cnn_network
 from adafruit_servokit import ServoKit
+import json ###################################################################################################################
 
 #pca.frequency = 50
 kit = ServoKit(channels=16)
 
+################################################################################################################################
+# Load in configuration constants for throttle and steering
+f = open('config.json')
+data = json.load(f)
+steering_trim = data['steering_trim']
+throttle_lim = data['throttle_trim']
+################################################################################################################################
 
 # Load model
 model = cnn_network()
@@ -33,17 +41,17 @@ while True:
         print(f"frame size: {frame.shape}")
         gray = frame  # we changed this from b&w to color
         img_tensor = img2tensor(gray)
-        img_tensor = resize(img_tensor)
+        img_tensor = resize(img_tensor) # I am 90% certain that this line is not needed -- changing the size should not affect predictions
         print(img_tensor.shape)
     with torch.no_grad():
-        pred = model(img_tensor.unsqueeze(dim=0))
+        pred = model(img_tensor.unsqueeze(dim=0)) # This line adds an extra dimension to the image tensor (print shape before and after to observe this effect)
     print(pred)
-    steering, throttle = pred[0][0].item() + 0.71, pred[0][1].item()
+    steering, throttle = pred[0][0].item(), pred[0][1].item()
     print("steering: ", steering)
     print("throttle: ", throttle)
-    motor.drive(throttle * 650 * 2.5) # we remove the negative before throttle so it doesn't drive bkwards
-    print("motor: ", throttle * 650 * 2.5)
-    ang = 90 * (1 + steering) + 6.8
+    motor.drive(throttle * throttle_lim) ########################################### I used the json file ##################################
+    print("motor: ", throttle * throttle_lim) ###################################### I used the json file ##################################
+    ang = 90 * (1 + steering) + steering_trim ###################################### I used the json file ##################################
     if ang > 180:
         ang = 180
     elif ang < 0:

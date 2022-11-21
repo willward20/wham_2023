@@ -67,7 +67,10 @@ while True:
     # turn(steer)
     print(throttle*throttle_lim, ang)
     
-    action = [throttle, steer]
+    ##########################################################################################################################################
+    action = [steer, throttle] # this MUST be [steering, throttle] because that's the order that train.py expects (originaly it was reversed)
+    ##########################################################################################################################################
+
     # print(f"action: {action}") # debug
     # save image
     if pygame.joystick.Joystick(0).get_button(0) == 1:
