@@ -17,7 +17,7 @@ class NeuralNetwork(nn.Module):
         super().__init__()
         self.conv1 = nn.Conv2d(3, 6, 3)
         self.conv2 = nn.Conv2d(6, 12, 3)
-        self.fc1 = nn.Linear(60*80, 120)
+        self.fc1 = nn.Linear(3*640*480, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 2)
 
@@ -55,8 +55,8 @@ class CustomImageDataset(Dataset):
 
 
 # Create a dataset
-annotations_file = "data2022-11-20-20-23-indoor-buckets/labels.csv"  # the name of the csv file
-img_dir = "data2022-11-20-20-23-indoor-buckets/images"  # the name of the folder with all the images in it
+annotations_file = "labels.csv"  # the name of the csv file
+img_dir = "images"  # the name of the folder with all the images in it
 collected_data = CustomImageDataset(annotations_file, img_dir)
 
 print("data length: ", len(collected_data))
@@ -128,7 +128,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr= 0.0001)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
 train_dataloader = DataLoader(train_data, batch_size=100)
 test_dataloader = DataLoader(test_data, batch_size=100)
-epochs = 50
+epochs = 5
 
 # Optimize the model
 for t in range(epochs):
@@ -143,7 +143,7 @@ print("test lost: ", test_loss)
 
 
 # Load an image from the dataset and make a prediction
-image = read_image('data2022-11-20-20-23-indoor-buckets/images/200.jpg').to(DEVICE)  # read image to tensor
+image = read_image('images/200.jpg').to(DEVICE)  # read image to tensor
 image = (image.float() / 255 ) # convert to float and standardize between 0 and 1
 print("loaded image after divide and float: ", image.size())
 image = image.unsqueeze(dim=0) # add an extra dimension that is needed in order to make a prediction
@@ -152,6 +152,6 @@ pred = model(image)
 print(pred)
 
 # Save the model
-torch.save(model.state_dict(), "indoor_buckets.pth")
-print("Saved PyTorch Model State to indoor_buckets.pth")
+torch.save(model.state_dict(), "basement_cnn_model.pth")
+print("Saved PyTorch Model State to basement_cnn_model.pth")
 

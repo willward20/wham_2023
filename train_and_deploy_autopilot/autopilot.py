@@ -9,6 +9,7 @@ from cnn_network import cnn_network
 #from neural_network_class import NeuralNetwork
 from adafruit_servokit import ServoKit
 import json ###################################################################################################################
+import time
 
 #pca.frequency = 50
 kit = ServoKit(channels=16)
@@ -33,6 +34,8 @@ resize = Resize(size=(60, 80))
 cap = cv.VideoCapture(0) #video capture from 0 or -1 should be the first camera plugged in. If passing 1 it would select the second camera
 # cap.set(cv.CAP_PROP_FPS, 10)
 
+times = [] # array to hold the elapsed time between each recieved frame
+start_time = time.time()
 
 while True:
     ret, frame = cap.read()   
@@ -60,10 +63,17 @@ while True:
     kit.servo[0].angle = ang
     #print("ang: ", ang)
 
+    elapsed_time = time.time() - start_time
+    times.append(elapsed_time)
+    start_time = elapsed_time
+
     if cv.waitKey(1)==ord('q'):
         motor.stop()
         motor.close()
         break
+
+print("Average Recieved Image Rate: ", sum(times) / len(times))
+
 # When everything done, release the capture
 cap.release()
 cv.destroyAllWindows()
