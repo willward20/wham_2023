@@ -35,7 +35,7 @@ pygame.joystick.Joystick(0).init()
 #stabilizer = VidStab()
 cap = cv.VideoCapture(0) #video capture from 0 or -1 should be the first camera plugged in. If passing 1 it would select the second camera
 cap.set(cv.CAP_PROP_FPS, 30)
-i = 0  # image index
+i = 1811  # image index
 action = [0., 0.]
 Record_data = -1
 led = LED(4)

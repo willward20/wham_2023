@@ -24,7 +24,7 @@ throttle_lim = data['throttle_trim']
 
 # Load CNN model
 model = cnn_network()
-model.load_state_dict(torch.load("indoor_buckets.pth", map_location=torch.device('cpu')))
+model.load_state_dict(torch.load("indoor_buckets_combined.pth", map_location=torch.device('cpu')))
 
 # Setup Transforms
 img2tensor = ToTensor()
@@ -49,10 +49,11 @@ while True:
         #print(img_tensor.shape)
     with torch.no_grad():
         pred = model(img_tensor.unsqueeze(dim=0)) # This line adds an extra dimension to the image tensor (print shape before and after to observe this effect)
-    print(pred)
+    #print(pred)
     steering, throttle = pred[0][0].item(), pred[0][1].item()
-    #print("steering: ", steering)
-    #print("throttle: ", throttle)
+    if throttle * throttle_lim < -100:
+        throttle = -1
+    print("steering: ", steering, "     throttle: ", throttle)
     motor.drive(throttle * throttle_lim) ########################################### I used the json file ##################################
     #print("motor: ", throttle * throttle_lim) ###################################### I used the json file ##################################
     ang = 90 * (1 + steering) + steering_trim ###################################### I used the json file ##################################
@@ -65,14 +66,15 @@ while True:
 
     elapsed_time = time.time() - start_time
     times.append(elapsed_time)
-    start_time = elapsed_time
+    start_time = time.time()
+    #print("elapsed time: ", elapsed_time)
+    #print("Average Recieved Image Rate: ", sum(times) / len(times))
 
     if cv.waitKey(1)==ord('q'):
         motor.stop()
         motor.close()
         break
 
-print("Average Recieved Image Rate: ", sum(times) / len(times))
 
 # When everything done, release the capture
 cap.release()
