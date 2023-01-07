@@ -52,7 +52,7 @@ while True:
     if act == 0:
         bot.stop()
     elif act == 1:
-        bot.forward(0.64)
+        bot.forward(0.3)
         cv.imwrite(f"{save_path}/forward/{i}.jpg", im)
         i += 1
     elif act == 2:

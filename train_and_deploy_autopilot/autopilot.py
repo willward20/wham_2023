@@ -28,7 +28,7 @@ model.load_state_dict(torch.load("indoor_buckets_combined.pth", map_location=tor
 
 # Setup Transforms
 img2tensor = ToTensor()
-resize = Resize(size=(60, 80))
+resize = Resize(size=(60,80))
 
 # Create video capturer
 cap = cv.VideoCapture(0) #video capture from 0 or -1 should be the first camera plugged in. If passing 1 it would select the second camera
@@ -42,11 +42,12 @@ while True:
     if frame is not None:
         #cv.imshow('frame', frame)  # debug
         frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0])))
+        img_tensor = img2tensor(frame) # added thi sline to get the colored img 
         #print(f"frame size: {frame.shape}")
-        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)  # we changed this from b&w to color
-        img_tensor = img2tensor(gray)
+        #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)  # we changed this from b&w to color
+        #img_tensor = img2tensor(gray)
         img_tensor = resize(img_tensor) # I am 90% certain that this line is not needed -- changing the size should not affect predictions
-        #print(img_tensor.shape)
+        print(img_tensor.shape)
     with torch.no_grad():
         pred = model(img_tensor.unsqueeze(dim=0)) # This line adds an extra dimension to the image tensor (print shape before and after to observe this effect)
     #print(pred)
