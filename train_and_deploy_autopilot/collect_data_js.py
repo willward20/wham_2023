@@ -62,7 +62,7 @@ while True:
         ang = 180
     elif ang < 0:
         ang = 0
-    kit.servo[0].angle = ang
+    kit.servo[15].angle = ang
     # steer = 90 + steering_trim + steer * 90
     # servo.turn(steer)
     # turn(steer)
