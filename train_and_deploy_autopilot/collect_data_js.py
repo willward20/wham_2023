@@ -35,7 +35,7 @@ pygame.joystick.Joystick(0).init()
 #stabilizer = VidStab()
 cap = cv.VideoCapture(0) #video capture from 0 or -1 should be the first camera plugged in. If passing 1 it would select the second camera
 cap.set(cv.CAP_PROP_FPS, 30)
-i = 1811  # image index
+i = 0  # image index
 action = [0., 0.]
 Record_data = -1
 led = LED(4)
@@ -45,8 +45,8 @@ while True:
     if frame is not None:
         #cv.imshow('frame', frame)  # debug
         #frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
-        frame = cv.resize(frame, (60, 80))
-        gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        frame = cv.resize(frame, (300, 300))
+        #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
     #stabilized_frame = stabilizer.stabilize_frame(input_frame=gray,smoothing_window=4)
     # if stabilized_frame is None:
     #     print('no frame')
@@ -85,7 +85,7 @@ while True:
         time.sleep(0.1)
     
     if Record_data == 1:
-        cv.imwrite(image_dir + str(i)+'.jpg', gray) # changed frame to gray
+        cv.imwrite(image_dir + str(i)+'.jpg', frame) # changed frame to gray
         # save labels
         label = [str(i)+'.jpg'] + list(action)
         label_path = os.path.join(os.path.dirname(os.path.dirname(image_dir)), 'labels.csv')
