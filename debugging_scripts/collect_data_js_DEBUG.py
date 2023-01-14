@@ -60,7 +60,7 @@ while True:
             #cv.imshow('frame', frame)  # debug
             #frame = cv.resize(frame, (int(frame.shape[1]), int(frame.shape[0]))) 
             frame = cv.resize(frame, (300, 300))
-            time_to_resize = time.time() - time_to_read_image
+            time_to_resize = time.time() - start_time - time_to_read_image
             #gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         #stabilized_frame = stabilizer.stabilize_frame(input_frame=gray,smoothing_window=4)
         # if stabilized_frame is None:
@@ -79,13 +79,13 @@ while True:
             ang = 0
         kit.servo[15].angle = ang
     
-        time_to_perform_action = time.time() - time_to_resize
+        time_to_perform_action = time.time() - start_time - time_to_resize
 
         # steer = 90 + steering_trim + steer * 90
         # servo.turn(steer)
         # turn(steer)
         print(throttle*throttle_lim, ang)
-        time_to_print_message = time.time() - time_to_perform_action
+        time_to_print_message = time.time() - start_time - time_to_perform_action
 
         ##########################################################################################################################################
         action = [steer, throttle] # this MUST be [steering, throttle] because that's the order that train.py expects (originaly it was reversed)
@@ -113,7 +113,7 @@ while True:
                 writer.writerow(label)  # write the data
             i += 1
         
-            time_to_save_data = time.time() - time_to_print_message
+            time_to_save_data = time.time() - start_time - time_to_print_message
             times_to_save_data.append(time_to_save_data)
 
         times_to_read_image.append(time_to_read_image)
