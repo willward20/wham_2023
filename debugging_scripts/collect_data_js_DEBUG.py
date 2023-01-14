@@ -49,8 +49,8 @@ times_to_perform_action = []
 times_to_print_message = []
 times_to_save_data = []
 
-try:
-    while True:
+while True:
+    try:
         start_time = time.time()
 
         ret, frame = cap.read() 
@@ -125,8 +125,8 @@ try:
         #if cv.waitKey(1)==ord('q'):
             #break
 
-except KeyboardInterrupt:
-        break
+    except KeyboardInterrupt:
+            break
 
 print("Iterations: ", i)
 print("Average time to read image:     ", np.mean(np.array(times_to_read_image)))      
