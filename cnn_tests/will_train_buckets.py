@@ -2,8 +2,7 @@
 Template for training data with a NN model.
 """
 import os
-from math import floor
-
+import statistics
 import numpy as np
 import pandas as pd
 import torch
@@ -11,7 +10,17 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset, random_split
 from torchvision.io import read_image
+import matplotlib.pyplot as plt
 
+
+DEVICE = torch.device("cuda")
+
+
+#############################################
+# Class Definitions
+#############################################
+
+# Class defining the neural network structure
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super().__init__()
@@ -27,8 +36,6 @@ class NeuralNetwork(nn.Module):
         x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
-
-DEVICE = torch.device("cuda")
 
 # Class for creating a dataset from our collected data
 class CustomImageDataset(Dataset):
@@ -54,18 +61,18 @@ class CustomImageDataset(Dataset):
         return image.float(), steering, throttle
 
 
-# Create a dataset
-annotations_file = "labels.csv"  # the name of the csv file
-img_dir = "images"  # the name of the folder with all the images in it
-collected_data = CustomImageDataset(annotations_file, img_dir)
-
-print("data length: ", len(collected_data))
+###############################################
+# Function definitions
+###############################################
 
 # Define Training Function
 def train(dataloader, model, loss_fn, optimizer):
-    size = len(dataloader.dataset)
+    num_batches = len(dataloader.dataset)
     model.train()
     
+    train_loss = 0.0
+
+
     for batch, (X, steering, throttle) in enumerate(dataloader):
         #Combine steering and throttle into one tensor (2 columns, X rows)
         y = torch.stack((steering, throttle), -1) 
@@ -81,9 +88,12 @@ def train(dataloader, model, loss_fn, optimizer):
         loss.backward()  # back propagatin
         optimizer.step()  # update parameters
         
-        if batch % 10 == 0:
-            loss, current = loss.item(), batch * len(X)
-            print(f"loss: {loss:>7f}  [{current:>5d}/{size:>5d}]")
+        #if batch % 10 == 0:
+        #    loss, current = loss.item(), batch * len(X)
+        #    print(f"Train Loss: {loss:>7f}")
+        train_loss += loss.item()
+    #print("Average train loss: ", statistics.mean(train_loss))
+    return train_loss/num_batches
 
         
 # Define a test function to evaluate model performance
@@ -91,7 +101,7 @@ def test(dataloader, model, loss_fn):
     #size = len(dataloader.dataset)
     num_batches = len(dataloader)
     model.eval()
-    test_loss = 0
+    test_loss = 0.0
     with torch.no_grad():
         for X, steering, throttle in dataloader:
 
@@ -102,27 +112,54 @@ def test(dataloader, model, loss_fn):
             X, y = X.to(DEVICE), y.to(DEVICE)
 
             pred = model(X)
-            test_loss += loss_fn(pred, y).item()
+            loss = loss_fn(pred, y).item()
+            #print(f"Test Loss: {loss:>7f}")
+            test_loss += loss
             #accuracy += (pred.argmax(1) == y).type(torch.float).sum().item()
-    test_loss /= num_batches
-    print(f"Test Error: Avg loss: {test_loss:>8f} \n")
+    #avg_loss = statistics.mean(test_loss)
+    #print(f"Test Error: Avg loss: {avg_loss:>8f} \n")
 
-    return test_loss
+    return test_loss/num_batches
+
+
+# Graph the test and train data
+def graph_data(x, train, test, TITLE, FILENAME):
+
+    fig = plt.figure()
+    axs = fig.add_subplot(1,1,1)
+
+    plt.plot(x, train, color='r', label="Training Loss")
+    plt.plot(x, test, color='b', label='Testing Loss')
+    axs.set_ylabel('Loss')
+    axs.set_xlabel('Training Epoch')
+    axs.set_title(TITLE)
+    axs.legend()
+    fig.savefig(FILENAME)
+
+    return
 
 
 
-# Start training
+############################################################################
+#           M         M        A        IIIIIII     N        N             #
+#           M M     M M       A A          I        N  N     N             # 
+#           M  M   M  M      AAAAA         I        N    N   N             #
+#           M    M    M     A     A        I        N      N N             # 
+#           M         M    A       A    IIIIIII     N        N             #
+############################################################################
+
+
+# Create a dataset
+annotations_file = "labels_edited.csv"  # the name of the csv file
+img_dir = "images_edited"  # the name of the folder with all the images in it
+collected_data = CustomImageDataset(annotations_file, img_dir)
+print("data length: ", len(collected_data))
+
+# Define the size for train and test data
 train_data_len = len(collected_data)
 train_data_size = round(train_data_len*0.9)
 test_data_size = round(train_data_len*0.1) 
 print("len and train and test: ", train_data_len, " ", train_data_size, " ", test_data_size)
-
-test_loss = []
-
-# Initialize the model
-model = NeuralNetwork().to(DEVICE)
-loss_fn = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr= 0.0001)
 
 # Load the datset (split into train and test)
 train_data, test_data = random_split(collected_data, [train_data_size, test_data_size])
@@ -130,18 +167,44 @@ train_dataloader = DataLoader(train_data, batch_size=100)
 test_dataloader = DataLoader(test_data, batch_size=100)
 epochs = 5
 
+
+
+# Initialize the model
+model = NeuralNetwork().to(DEVICE)
+loss_fn = nn.MSELoss()
+optimizer = torch.optim.Adam(model.parameters(), lr= 0.0001)
+
 # Optimize the model
+train_loss = []
+test_loss = []
 for t in range(epochs):
     print(f"Epoch {t+1}\n-------------------------------")
-    train(train_dataloader, model, loss_fn, optimizer)
-    loss = test(test_dataloader, model, loss_fn)
-    test_loss.append(loss)    
+    training_loss = train(train_dataloader, model, loss_fn, optimizer)
+    testing_loss = test(test_dataloader, model, loss_fn)
+    print("average training loss: ", training_loss)
+    print("average testing loss: ", testing_loss)
+    # save values
+    train_loss.append(training_loss)
+    test_loss.append(testing_loss)   
 
 print(f"Optimize Done!")
 
-print("test lost: ", test_loss)
+
+#print("final test lost: ", test_loss[-1])
+len_train_loss = len(train_loss)
+len_test_loss = len(test_loss)
+print("Train loss length: ", len_train_loss)
+print("Test loss length: ", len_test_loss)
 
 
+# create array for x values for plotting train
+epochs_array = list(range(1, epochs+1))
+print(epochs_array)
+
+graph_data(epochs_array, train_loss, test_loss, "TEST", "test.jpg")
+
+
+"""
 # Load an image from the dataset and make a prediction
 image = read_image('images/200.jpg').to(DEVICE)  # read image to tensor
 image = (image.float() / 255 ) # convert to float and standardize between 0 and 1
@@ -150,8 +213,9 @@ image = image.unsqueeze(dim=0) # add an extra dimension that is needed in order 
 print("loaded image after unsqueeze: ", image.size())
 pred = model(image)
 print(pred)
+"""
 
 # Save the model
-torch.save(model.state_dict(), "basement_cnn_model.pth")
-print("Saved PyTorch Model State to basement_cnn_model.pth")
+torch.save(model.state_dict(), "TEST.pth")
+print("Saved PyTorch Model State to TEST.pth")
 
