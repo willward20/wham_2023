@@ -104,7 +104,7 @@ while True:
             time.sleep(0.1)
     
         if Record_data == 1:
-            cv.imwrite(image_dir + str(i)+'.jpg', frame) # changed frame to gray
+            cv.imwrite(image_dir + str(i)+'.jpg', frame) # changed frame to gray # this line saves image
             # save labels
             label = [str(i)+'.jpg'] + list(action)
             label_path = os.path.join(os.path.dirname(os.path.dirname(image_dir)), 'labels.csv')
