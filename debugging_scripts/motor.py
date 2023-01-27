@@ -16,7 +16,7 @@ GPIO.setup(DIG1, GPIO.OUT)
 
 sleep(1)
 
-p1 = GPIO.PWM(AN1, 100)
+p1 = GPIO.PWM(AN1, 1000)
 #p2 = GPIO.PWM(AN2, 100)
 
 def forward(speed):
